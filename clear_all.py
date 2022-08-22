@@ -4,7 +4,8 @@ imdir =  os.path.join(os.getcwd(), 'images_done')
 lbdir = os.path.join(os.getcwd(), 'labels_done')
 op_im_dir = os.path.join(os.getcwd(), 'output', 'labelled_images')
 op_lb_dir = os.path.join(os.getcwd(),'output', 'image_labels')
-
+rjdir = os.path.join(os.getcwd(), 'rejected')
+labels_dir = os.path.join(os.getcwd(), 'labels')
 
 def clear_dir(dir_path):
     for file in os.listdir(dir_path):
@@ -14,4 +15,6 @@ clear_dir(imdir) #clear images_done
 clear_dir(lbdir) #clear labels_done
 clear_dir(op_im_dir) #clear output images
 clear_dir(op_lb_dir) #clear output labels
+clear_dir(rjdir) #clear rejected
+clear_dir(labels_dir) #clear labels folder
 print('As good as new')

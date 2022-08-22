@@ -25,6 +25,8 @@ Step 0: Navigate to 'bird_marker' directory and create the virtual environment b
 
 Running the model:
 
+First run $ python clear_all.py to delete the delete.txt in folders.
+
 Step 1: Paste the images to be marked in the images folder.
         CAUTION: There are already some test images in the folder, delete them before pasting new images.
 
@@ -56,7 +58,7 @@ Step 3: There are theree different scripts for marking:
 
         The input images are transferred to images_done folder and yolo generated labels to lables_done folder.
 
-Step 4: Copy the 'output' folder onto your local computer. $ python3 clear_all.py can be run to clear output, 
+Step 4: Copy the 'output' folder onto your local computer. $ python3 clear_all.py can be run to clear output, labels, rejected
         images_done and label_done folders.
 
         Follow the same steps for new images.
