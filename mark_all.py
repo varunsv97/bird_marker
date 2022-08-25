@@ -32,30 +32,41 @@ def mark_image(annopath, imgpath, file):
     
     image = cv2.imread(imgpath)
     dta = pd.read_csv(annopath)
+    label_list = []
 
     for index, row in dta.iterrows():
-
-        x_min = row['xmin']
-        y_min = row['ymin']
-        x_max = row['xmax']
-        y_max = row['ymax']
+        
         conf = row['confidence']
         labl = row['name']
-        x_pt, y_pt = convert(x_min, y_min, x_max, y_max)
-        if conf > conf_thres:
+
+        if (labl not in label_list) and (conf >= conf_thres):
+
+            x_min = row['xmin']
+            y_min = row['ymin']
+            x_max = row['xmax']
+            y_max = row['ymax']
+
+            x_pt, y_pt = convert(x_min, y_min, x_max, y_max)
             org = (int(x_pt), int(y_pt))
+
             image = cv2.circle(image, org, radius=2, color=red, thickness=2)
             image = cv2.putText(image, labl, org, font, 
                     fontScale, font_colour, thickness, cv2.LINE_AA)
+
             row_data = pd.DataFrame({'filename': file, 'label': labl, 'x': x_pt, 'y': y_pt, 'confidence': conf}, index=[0])
             df = pd.concat([df, row_data])
+
+            label_list.append(labl)
+
         else:
+
             continue
         
     return image, df
 
 
 for file in sorted(os.listdir(img_path)):
+
     f_name = os.path.splitext(file)[0]
     img_file = os.path.join(os.getcwd(), img_path, file)
     csv_file = os.path.join(os.getcwd(), anno_path, f_name + '.csv')

@@ -15,7 +15,7 @@ thickness = 2 #label font thickness
 font_colour = [0,255,0] #label font colour
 font_colour_tmp = [0,255,255]
 
-conf_thres = 0.7 #confidence threshold for markers(0.7 recommended)
+conf_thres = 0.5 #confidence threshold for markers(0.5 recommended)
 
 def convert(xmin, ymin, xmax, ymax): #function to get centroid of bounding box
 
@@ -40,39 +40,41 @@ def mark_image(annopath, imgpath, file): #function to mark the images
     image = cv2.imread(imgpath) #loading image
     image_tmp = image.copy()
     dta = pd.read_csv(annopath) #loading labels
+    label_list = []
 
     for index, row in dta.iterrows(): #iterating through all the labels
 
-        x_min = row['xmin']
-        y_min = row['ymin']
-        x_max = row['xmax']
-        y_max = row['ymax']
         conf = row['confidence']
         labl = row['name']
 
-        x_pt, y_pt = convert(x_min, y_min, x_max, y_max) #getting centroid of bounding box
+        if (labl not in label_list) and (conf >= conf_thres):
 
-        def drawCircle(event, x, y, flags, param): #function to draw circle at mouse point
+            x_min = row['xmin']
+            y_min = row['ymin']
+            x_max = row['xmax']
+            y_max = row['ymax']
 
-            global row_data_
+            x_pt, y_pt = convert(x_min, y_min, x_max, y_max) #getting centroid of bounding box
 
-            if event == cv2.EVENT_LBUTTONDOWN: #event at left double click
-                
-                org_ = (x, y)
-                
-                cv2.circle(image, org_, radius=2, color=red, thickness=2)
-                cv2.putText(image, labl, org_, font, 
-                            fontScale, font_colour, thickness, cv2.LINE_AA)
+            def drawCircle(event, x, y, flags, param): #function to draw circle at mouse point
 
-                cv2.circle(image_tmp, org_, radius=2, color=red, thickness=2)
-                cv2.putText(image_tmp, labl, org_, font, 
-                            fontScale, font_colour, thickness, cv2.LINE_AA)
+                global row_data_
 
-                cv2.imshow(labl, image)
-                row_data_ = pd.DataFrame({'filename': file, 'label': labl, 'x': x, 'y': y, 'confidence': 1.0}, index=[0])
-                
+                if event == cv2.EVENT_LBUTTONDOWN: #event at left double click
+                    
+                    org_ = (x, y)
+                    
+                    cv2.circle(image, org_, radius=2, color=red, thickness=2)
+                    cv2.putText(image, labl, org_, font, 
+                                fontScale, font_colour, thickness, cv2.LINE_AA)
 
-        if conf > conf_thres: #limiting labels by their confidence value
+                    cv2.circle(image_tmp, org_, radius=2, color=red, thickness=2)
+                    cv2.putText(image_tmp, labl, org_, font, 
+                                fontScale, font_colour, thickness, cv2.LINE_AA)
+
+                    cv2.imshow(labl, image)
+                    row_data_ = pd.DataFrame({'filename': file, 'label': labl, 'x': x, 'y': y, 'confidence': 1.0}, index=[0])
+                    
 
             org = (int(x_pt), int(y_pt)) #convert co-ordinate points to integer
             image_tmp = cv2.circle(image_tmp, org, radius=2, color=blue, thickness=2) #marking point on image
@@ -92,6 +94,7 @@ def mark_image(annopath, imgpath, file): #function to mark the images
 
                 row_data = pd.DataFrame({'filename': file, 'label': labl, 'x': x_pt, 'y': y_pt, 'confidence': conf}, index=[0])
                 df = pd.concat([df, row_data])
+                label_list.append(labl)
                 cv2.destroyAllWindows()
 
             elif cv2.waitKey(0) == ord('n'):
@@ -100,6 +103,7 @@ def mark_image(annopath, imgpath, file): #function to mark the images
                 cv2.setMouseCallback(labl, drawCircle)
                 cv2.waitKey(0) == ord('y')
                 df = pd.concat([df, row_data_])
+                label_list.append(labl)
                 cv2.destroyAllWindows()
 
             else:
